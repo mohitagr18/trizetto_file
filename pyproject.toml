@@ -1,0 +1,15 @@
+[project]
+name = "trizetto-file"
+version = "0.1.0"
+description = "Automated EDI 835 remittance processing pipeline for home healthcare"
+requires-python = ">=3.9"
+dependencies = [
+    "paramiko>=3.4",
+    "pandas>=2.0",
+    "openpyxl>=3.1",
+    "python-dotenv>=1.0",
+    "cryptography<44",
+]
+
+[project.scripts]
+remit-processor = "main:main"
