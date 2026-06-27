@@ -5,7 +5,7 @@ SFTP client module — connect, list, and download .rmt files.
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import paramiko
 
@@ -46,6 +46,7 @@ class SFTPClient:
             self._transport.close()
         logger.info("SFTP connection closed.")
 
+
     def list_rmt_files(self, remote_dir: Optional[str] = None) -> List[str]:
         """
         List all .rmt files in the remote directory.
@@ -67,6 +68,34 @@ class SFTPClient:
 
         logger.info("Found %d .rmt files in %s", len(rmt_files), remote_dir)
         return rmt_files
+
+    def list_rmt_files_with_attrs(self, remote_dir: Optional[str] = None) -> List[Tuple[str, int]]:
+        """
+        List all .rmt files in the remote directory along with their file sizes.
+
+        Args:
+            remote_dir: Remote directory path. Defaults to Config.SFTP_REMOTE_DIR.
+
+        Returns:
+            List of (filename, file_size) tuples found in the directory.
+        """
+        if self._sftp is None:
+            raise RuntimeError("Not connected. Call connect() first.")
+
+        remote_dir = remote_dir or Config.SFTP_REMOTE_DIR
+        logger.info("Listing files with attributes in remote directory: %s", remote_dir)
+
+        attrs = self._sftp.listdir_attr(remote_dir)
+        rmt_files = [
+            (a.filename, a.st_size)
+            for a in attrs
+            if a.filename and a.filename.lower().endswith(".rmt")
+        ]
+        rmt_files = sorted(rmt_files, key=lambda x: x[0])
+
+        logger.info("Found %d .rmt files in %s", len(rmt_files), remote_dir)
+        return rmt_files
+
 
     def download_files(
         self,

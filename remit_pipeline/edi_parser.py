@@ -292,15 +292,17 @@ def parse_edi_835(filepath: str, filename: str = "") -> List[Dict[str, Any]]:
 def parse_all_rmt_files(
     raw_dir: Optional[Path] = None,
     processed_dir: Optional[Path] = None,
+    files_to_parse: Optional[List[str]] = None,
 ) -> pd.DataFrame:
     """
-    Parse all .rmt files in the raw directory.
+    Parse .rmt files in the raw directory (or a specific list of files).
 
     Saves per-file CSVs to processed_dir and returns a combined DataFrame.
 
     Args:
         raw_dir: Directory containing .rmt files. Defaults to Config.RAW_DATA_DIR.
         processed_dir: Directory for CSV output. Defaults to Config.PROCESSED_DATA_DIR.
+        files_to_parse: Specific list of filenames to parse. If None, parses all in raw_dir.
 
     Returns:
         Combined DataFrame of all parsed records.
@@ -310,13 +312,17 @@ def parse_all_rmt_files(
     processed_dir.mkdir(parents=True, exist_ok=True)
 
     all_records: List[Dict[str, Any]] = []
-    rmt_files = sorted([f for f in os.listdir(raw_dir) if f.lower().endswith(".rmt")])
+    
+    if files_to_parse is not None:
+        rmt_files = sorted([f for f in files_to_parse if f.lower().endswith(".rmt")])
+    else:
+        rmt_files = sorted([f for f in os.listdir(raw_dir) if f.lower().endswith(".rmt")])
 
     if not rmt_files:
-        logger.warning("No .rmt files found in %s", raw_dir)
+        logger.warning("No .rmt files to parse.")
         return pd.DataFrame()
 
-    logger.info("Parsing %d .rmt files from %s", len(rmt_files), raw_dir)
+    logger.info("Parsing %d .rmt files", len(rmt_files))
 
     for filename in rmt_files:
         filepath = raw_dir / filename

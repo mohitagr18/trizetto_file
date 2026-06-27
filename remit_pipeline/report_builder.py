@@ -565,3 +565,41 @@ def build_and_write_report(
 
     # Step 3: Write both to Excel
     return write_master_excel(detail_df, summary_df, output_dir=output_dir)
+
+
+def rebuild_report_from_cached_csvs(
+    processed_dir: Optional[Path] = None,
+    output_dir: Optional[Path] = None,
+) -> Optional[Path]:
+    """
+    Read all parsed CSVs from processed_dir and rebuild the Master Excel report.
+    This enables incremental run updates without re-parsing raw .rmt files.
+    """
+    processed_dir = processed_dir or Config.PROCESSED_DATA_DIR
+    csv_files = sorted([f for f in processed_dir.glob("*.csv")])
+
+    if not csv_files:
+        logger.warning("No parsed CSVs found in %s to rebuild report.", processed_dir)
+        return None
+
+    logger.info("Rebuilding master report from %d cached CSV files...", len(csv_files))
+
+    dfs = []
+    for csv_file in csv_files:
+        try:
+            df = pd.read_csv(csv_file)
+            # Ensure proper conversion of NPI and check/EFT columns to string to avoid format truncation issues later
+            for col in ["Check/EFT Number", "Member ID", "Rendering Provider NPI", "Claim Control Number (TCN)", "Payee NPI"]:
+                if col in df.columns:
+                    df[col] = df[col].astype(str)
+            dfs.append(df)
+        except Exception as e:
+            logger.error("Failed to read CSV %s: %s", csv_file.name, e)
+
+    if not dfs:
+        logger.warning("No valid CSV data read.")
+        return None
+
+    combined_df = pd.concat(dfs, ignore_index=True)
+    return build_and_write_report(combined_df, output_dir=output_dir)
+
