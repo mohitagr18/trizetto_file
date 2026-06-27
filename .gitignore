@@ -220,5 +220,8 @@ __marimo__/
 # Project-specific
 data/raw/
 data/processed/
+*.db
+**/*.db
+logs/
 output/
 !.env.example
