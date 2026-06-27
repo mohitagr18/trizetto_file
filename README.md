@@ -9,25 +9,42 @@ This pipeline is designed for a home healthcare provider and features **local st
 ## System Architecture
 
 ```mermaid
-graph TD
-    SFTP[GatewayEDI SFTP Server]
-    DB[(SQLite State DB)]
-    RawFolder[(data/raw/)]
-    CSVCache[(data/processed/)]
-    Output[output/Master_Remittance_Report_YYYYMMDD.xlsx]
+flowchart LR
 
-    subgraph Scheduler Run - Every Hour
-        SFTP -- 1. List files with sizes --> SFTPClient
-        DB -- 2. Read SUCCESS list --> StateFilter
-        SFTPClient & StateFilter --> StateFilter
-        StateFilter -- 3. Filter New Files --> Downloader
-        Downloader -- 4. Download --> RawFolder
-        RawFolder -- 5. Read New File --> EDIParser
-        EDIParser -- 6. Write CSV Cache --> CSVCache
-        EDIParser -- 7. Mark SUCCESS/FAILED --> DB
-        CSVCache -- 8. Read All CSV Caches --> ReportBuilder
-        ReportBuilder -- 9. Rebuild Excel Sheets --> Output
+    subgraph DISC["1. Discovery"]
+        direction TB
+        D1["GatewayEDI SFTP"]
+        D2["List files with sizes"]
+        D3["Read SUCCESS list"]
+        D4["Filter new files"]
+        D1 --> D2 --> D3 --> D4
     end
+
+    subgraph XFER["2. Transfer"]
+        direction TB
+        X1["Download"]
+        X2[("data/raw/")]
+        X1 --> X2
+    end
+
+    subgraph PARSE["3. Parse + Cache"]
+        direction TB
+        P1["Read new file"]
+        P2["Parse EDI"]
+        P3[("data/processed/")]
+        P4["Mark SUCCESS / FAILED"]
+        P1 --> P2 --> P3 --> P4
+    end
+
+    subgraph REPORT["4. Reporting"]
+        direction TB
+        R1["Read all CSV caches"]
+        R2["Rebuild Excel sheets"]
+        R3["output/Master_Remittance_Report_YYYYMMDD.xlsx"]
+        R1 --> R2 --> R3
+    end
+
+    DISC --> XFER --> PARSE --> REPORT
 ```
 
 ---
