@@ -490,8 +490,7 @@ def write_master_excel(
     output_dir = output_dir or Config.OUTPUT_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    today_str = datetime.now().strftime("%Y%m%d")
-    filename = f"Master_Remittance_Report_{today_str}.xlsx"
+    filename = "Master_Remittance_Report.xlsx"
     output_path = output_dir / filename
 
     wb = Workbook()

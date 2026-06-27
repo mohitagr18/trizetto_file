@@ -121,9 +121,7 @@ def run_pipeline_step(parse_only: bool, download_only: bool, output_dir: Path) -
             logger.info("No new files to parse.")
 
         # Step 3: Rebuild Master Report (if new files parsed OR if master report is missing)
-        # Find latest master report path
-        today_str = time.strftime("%Y%m%d")
-        report_path = Config.OUTPUT_DIR / f"Master_Remittance_Report_{today_str}.xlsx"
+        report_path = Config.OUTPUT_DIR / "Master_Remittance_Report.xlsx"
         
         if new_files_count > 0 or not report_path.exists():
             logger.info("Generating/rebuilding Master Excel report...")

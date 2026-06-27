@@ -40,7 +40,7 @@ flowchart LR
         direction TB
         R1["Read all CSV caches"]
         R2["Rebuild Excel sheets"]
-        R3["output/Master_Remittance_Report_YYYYMMDD.xlsx"]
+        R3["output/Master_Remittance_Report.xlsx"]
         R1 --> R2 --> R3
     end
 
