@@ -16,7 +16,7 @@ graph TD
     CSVCache[(data/processed/)]
     Output[output/Master_Remittance_Report_YYYYMMDD.xlsx]
 
-    subgraph Scheduler Run (Every Hour)
+    subgraph Scheduler Run - Every Hour
         SFTP -- 1. List files with sizes --> SFTPClient
         DB -- 2. Read SUCCESS list --> StateFilter
         SFTPClient & StateFilter --> StateFilter
