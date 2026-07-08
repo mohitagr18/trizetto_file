@@ -225,3 +225,4 @@ data/processed/
 logs/
 output/
 !.env.example
+.DS_Store
