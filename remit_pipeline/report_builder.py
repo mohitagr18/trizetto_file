@@ -121,6 +121,36 @@ def _base_procedure_code(proc_code: str) -> str:
     return proc_code
 
 
+def format_procedure_code(proc_code: str) -> str:
+    """Format procedure code composite to match user requirements.
+    'HC:T1019:76:UB' -> 'T1019: 76: UB'
+    'HC:T1005' -> 'T1005'
+    """
+    if not proc_code:
+        return ""
+    parts = str(proc_code).split(":")
+    # Find the base procedure code (usually 1 letter + 4 digits)
+    base_idx = -1
+    for i, part in enumerate(parts):
+        if re.match(r"^[A-Z]\d{4}$", part):
+            base_idx = i
+            break
+            
+    if base_idx != -1:
+        base_code = parts[base_idx]
+        modifiers = parts[base_idx + 1:]
+        if modifiers:
+            return f"{base_code}: {': '.join(modifiers)}"
+        else:
+            return base_code
+            
+    # Fallback: return everything after 'HC:' joined by ': '
+    if parts[0] == "HC" and len(parts) > 1:
+        return ": ".join(parts[1:])
+    return proc_code
+
+
+
 # ============================================================================
 # Build the Service Line Detail DataFrame (SVC-level — source of truth)
 # ============================================================================
@@ -179,6 +209,7 @@ def build_detail_dataframe(parsed_df: pd.DataFrame) -> pd.DataFrame:
     df["Insurance"] = df["Payer Name"].apply(lambda x: _derive_insurance(str(x)))
     df["Transaction Type"] = df["Claim Status Code"].apply(_derive_transaction_type)
     df["Procedure Code (Base)"] = df["Procedure Code"].apply(_base_procedure_code)
+    df["Procedure Code"] = df["Procedure Code"].apply(format_procedure_code)
 
     # Rename to distinguish claim-level vs SVC-level amounts
     df = df.rename(columns={
@@ -277,9 +308,9 @@ def build_claim_summary(detail_df: pd.DataFrame) -> pd.DataFrame:
         else:
             paid_units = 0.0
 
-        # --- Procedure code: base code(s) ---
-        base_codes = grp["Procedure Code"].apply(lambda x: _base_procedure_code(str(x))).dropna().unique()
-        proc_code = ", ".join(sorted(set(base_codes))) if len(base_codes) > 0 else ""
+        # --- Procedure code: formatted code(s) ---
+        unique_codes = grp["Procedure Code"].dropna().unique()
+        proc_code = ", ".join(sorted(set(unique_codes))) if len(unique_codes) > 0 else ""
 
         # --- Adjustments: aggregate CAS data ---
         cas_rows = grp[grp["CAS1_Group"].notna() & (grp["CAS1_Group"] != "")]
