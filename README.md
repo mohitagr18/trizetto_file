@@ -8,6 +8,8 @@ This pipeline is designed for a home healthcare provider and features **local st
 
 ## System Architecture
 
+> **Note:** For a detailed breakdown of the data transformation processes and how this pipeline fits into the broader end-to-end reconciliation ecosystem, please see [docs/workflow.md](docs/workflow.md).
+
 ```mermaid
 flowchart LR
 
@@ -147,6 +149,7 @@ The output Excel report consists of two sheets:
 ### Sheet 1: `Claim Summary`
 Aggregated at the Claim Level (`CLP` segment) for high-level management:
 - **Base Columns (1–22):** Exactly matches historical template layout (`Batch`, `Date`, `Claim`, `Transaction Type`, `Charge`, `Payment`, `Allowed`, etc.).
+- **Procedure Code:** Formats and aggregates primary procedure codes and modifiers (e.g., `T1005: 76`) from underlying service lines to indicate the care type.
 - **Billed/Paid Hours:** Summarized from actual service-line units.
 - **Has Adjustment / Total Adjustment / Adjustment Codes:** Identifies claims with financial adjustments (e.g., `OA-23`, `PR-142`) and shows totals.
 - **Service Lines:** The count of daily lines rolled up into this claim.
