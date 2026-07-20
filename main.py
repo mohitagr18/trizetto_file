@@ -241,7 +241,7 @@ Examples:
     print(f"  Raw data dir:       {Config.RAW_DATA_DIR}")
     print(f"  Processed data dir: {Config.PROCESSED_DATA_DIR}")
     print(f"  Output dir:         {Config.OUTPUT_DIR}")
-    print(f"  Scheduler mode:     {'ACTIVE (every 60 min)' if args.scheduler else 'INACTIVE (one-shot)'}")
+    print(f"  Scheduler mode:     {'ACTIVE (every 30 min)' if args.scheduler else 'INACTIVE (one-shot)'}")
     print(f"  Mode:               {'Download Only' if args.download_only else 'Parse Only' if args.parse_only else 'Full Pipeline'}")
     print("=" * 64)
     print()
@@ -258,8 +258,8 @@ Examples:
                 )
             except Exception as e:
                 logger.error("Error in scheduler execution step: %s", e)
-            logger.info("Daemon sleep: waiting 60 minutes for next check...")
-            time.sleep(3600)
+            logger.info("Daemon sleep: waiting 30 minutes for next check...")
+            time.sleep(1800)
     else:
         # Run one-shot
         logger.info("Executing single one-shot run...")
