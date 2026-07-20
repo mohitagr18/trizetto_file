@@ -26,6 +26,20 @@ def setup_logging() -> None:
         format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    
+    # Configure dedicated logger for files_found.log
+    found_logger = logging.getLogger("files_found")
+    found_logger.setLevel(logging.INFO)
+    found_logger.propagate = False  # Prevent double logging to the root logger/scheduler.log
+    
+    # Ensure logs directory exists
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    
+    # Setup file handler
+    fh = logging.FileHandler(log_dir / "files_found.log")
+    fh.setFormatter(logging.Formatter("%(asctime)s [INFO] remit_pipeline.sftp_client — %(message)s", datefmt="%Y-%m-%d %H:%M:%S"))
+    found_logger.addHandler(fh)
 
 
 def run_pipeline_step(parse_only: bool, download_only: bool, output_dir: Path) -> int:

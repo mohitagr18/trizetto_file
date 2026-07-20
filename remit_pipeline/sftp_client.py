@@ -141,6 +141,7 @@ class SFTPClient:
                 self._sftp.get(remote_path, str(local_path))
                 file_size = local_path.stat().st_size
                 logger.info("  ✓ Downloaded %s (%s bytes)", filename, f"{file_size:,}")
+                logging.getLogger("files_found").info("  ✓ Downloaded %s (%s bytes)", filename, f"{file_size:,}")
                 downloaded.append(local_path)
             except Exception as e:
                 logger.error("  ✗ Failed to download %s: %s", filename, e)
